@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 디지털혁신 백서 검색</title>
+<meta name="description" content="2026년 행정안전부 디지털혁신 백서(가상)의 장별 카드 검색 페이지">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --ink: #14181f; --sub: #4b5563; --muted: #6b7280;
+    --line: #e3e6eb; --accent: #1f5bd8; --accent-soft: #e8efff; --warn: #a14a00; --warn-soft: #fff4e5;
+    --mark: #fff1a8; --radius: 12px; --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1216; --surface: #171b21; --ink: #e8eaed; --sub: #b4bac4; --muted: #9aa1ab;
+      --line: #2a3039; --accent: #7aa7ff; --accent-soft: #1b2740; --warn: #ffb566; --warn-soft: #2d2215;
+      --mark: #5a4a00; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard Variable", Pretendard, system-ui, -apple-system, "Malgun Gothic", sans-serif;
+    font-size: 16px; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  /* 헤더 + 외부 리소스(이미지) */
+  header { padding: 40px 0 24px; }
+  .eyebrow { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--accent); letter-spacing: .02em; }
+  h1 { margin: 0; font-size: clamp(28px, 5vw, 39px); line-height: 1.3; letter-spacing: -.02em; }
+  .lead { margin: 12px 0 0; color: var(--sub); max-width: 60ch; }
+  .hero { margin: 24px 0 0; border-radius: var(--radius); overflow: hidden; background: linear-gradient(135deg, #1f5bd8, #0e2f73); position: relative; }
+  .hero img { display: block; width: 100%; height: clamp(160px, 28vw, 280px); object-fit: cover; }
+  .hero figcaption { position: absolute; right: 8px; bottom: 8px; font-size: 12px; line-height: 1.4;
+    color: #fff; background: rgba(0,0,0,.55); padding: 4px 8px; border-radius: 6px; }
+  .hero figcaption a { color: #fff; }
+
+  /* 검색 */
+  .search { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .search-row { display: flex; gap: 8px; align-items: center; }
+  .field { position: relative; flex: 1; }
+  .field input {
+    width: 100%; height: 48px; padding: 0 44px 0 16px; font: inherit; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
+  }
+  .field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .clear { position: absolute; right: 2px; top: 2px; width: 44px; height: 44px; border: 0; background: none;
+    color: var(--muted); font-size: 20px; cursor: pointer; border-radius: 8px; }
+  .clear[hidden] { display: none; }
+  .scope { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .chip { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface);
+    color: var(--sub); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 160ms ease-out, color 160ms ease-out; }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (prefers-color-scheme: dark) { .chip[aria-pressed="true"] { color: #0f1216; } }
+  .count { margin: 12px 0 0; font-size: 15px; color: var(--sub); }
+  .count strong { color: var(--ink); font-size: 18px; }
+
+  /* 카드 */
+  main { padding: 24px 0 48px; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  @media (max-width: 360px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 24px; display: flex; flex-direction: column; gap: 8px; }
+  .no { font-size: 13px; font-weight: 700; color: var(--accent); background: var(--accent-soft);
+    align-self: flex-start; padding: 2px 10px; border-radius: 999px; }
+  .card h2 { margin: 0; font-size: 20px; line-height: 1.4; }
+  .summary { margin: 0; color: var(--sub); }
+  .flag { margin: 0; font-size: 14px; color: var(--warn); background: var(--warn-soft); padding: 8px 12px; border-radius: 8px; line-height: 1.5; }
+  details { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line); }
+  summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--accent); min-height: 44px; display: flex; align-items: center; }
+  .full { white-space: pre-line; font-size: 15px; color: var(--ink); margin: 0 0 8px; }
+  mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
+
+  /* 상태 */
+  .state { text-align: center; padding: 48px 16px; color: var(--sub); background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); }
+  .state strong { display: block; color: var(--ink); font-size: 18px; margin-bottom: 4px; }
+  .state button { margin-top: 16px; }
+  .skeleton { height: 200px; border-radius: var(--radius); background: linear-gradient(90deg, var(--surface), var(--line), var(--surface));
+    background-size: 200% 100%; animation: shimmer 1.2s ease-out infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* 일관성 점검 */
+  .audit { margin-top: 40px; }
+  .audit h2 { font-size: 24px; margin: 0 0 4px; }
+  .audit p { margin: 0 0 16px; color: var(--sub); }
+  .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 560px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  .odd { color: var(--warn); font-weight: 600; }
+  footer { padding: 24px 0 40px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <p class="eyebrow">행정안전부 디지털혁신과 · 2026</p>
+  <h1>2026 디지털혁신 백서 장별 검색</h1>
+  <p class="lead">백서 6개 장을 카드로 모았습니다. 제목이나 본문의 키워드로 필요한 장만 찾을 수 있습니다.</p>
+  <figure class="hero">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Government_Complex_Sejong_20190611_Main_Entrance.jpg/1280px-Government_Complex_Sejong_20190611_Main_Entrance.jpg"
+         alt="정부세종청사 정문 전경" width="1280" height="720" loading="eager"
+         onerror="this.remove()">
+    <figcaption>정부세종청사 · 사진 <a href="https://commons.wikimedia.org/wiki/File:Government_Complex_Sejong_20190611_Main_Entrance.jpg" target="_blank" rel="noopener">*Youngjin, CC BY-SA 3.0</a> (Wikimedia Commons)</figcaption>
+  </figure>
+</header>
+
+<div class="search">
+  <div class="wrap">
+    <div class="search-row">
+      <div class="field">
+        <label for="q" class="sr-only">키워드 검색</label>
+        <input id="q" type="search" placeholder="키워드 검색 (예: 예산, 국장, 재난)  — 단축키 /" autocomplete="off">
+        <button class="clear" id="clear" type="button" aria-label="검색어 지우기" hidden>×</button>
+      </div>
+    </div>
+    <div class="scope" role="group" aria-label="검색 범위">
+      <button class="chip" type="button" data-scope="all" aria-pressed="true">제목+본문</button>
+      <button class="chip" type="button" data-scope="title" aria-pressed="false">제목만</button>
+      <button class="chip" type="button" data-scope="body" aria-pressed="false">본문만</button>
+    </div>
+    <p class="count" id="count" aria-live="polite">불러오는 중…</p>
+  </div>
+</div>
+
+<main class="wrap">
+  <ul class="grid" id="grid" aria-busy="true">
+    <li class="skeleton"></li><li class="skeleton"></li><li class="skeleton"></li>
+  </ul>
+
+  <section class="audit" aria-labelledby="audit-h">
+    <h2 id="audit-h">일관성 점검</h2>
+    <p>같은 사실이 장마다 다르게 적힌 곳입니다. 다수 표기를 기준으로 삼고, 어긋난 값은 주황색으로 표시했습니다.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>항목</th><th>다수 표기 (장)</th><th>어긋난 표기 (장)</th></tr></thead>
+        <tbody>
+          <tr><td>총 사업 건수</td><td>50건 (1·2·6장, 4장 합계 10×5)</td><td class="odd">48건 (5장)</td></tr>
+          <tr><td>총 예산</td><td>6,700억원 (1·2·6장)</td><td class="odd">6,500억원 (5장)</td></tr>
+          <tr><td>주관 국장</td><td>한지원 (1·3장)</td><td class="odd">한지연 (5장)</td></tr>
+          <tr><td>사업 종료일</td><td>2026-12-31 (1·3장)</td><td class="odd">2026-12-30 (4.3절)</td></tr>
+          <tr><td>총괄 부서명</td><td>디지털혁신과 (1·2·3장)</td><td class="odd">디지털혁신추진과 (4.1절, 별도 부서인지 확인 필요)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  데이터: 2026 디지털혁신 백서(가상) 장데이터.json · 이미지: Wikimedia Commons (CC BY-SA 3.0)
+</footer>
+
+<script>
+(() => {
+  const DATA_URL = encodeURI("장데이터.json");
+  const SUMMARY_LEN = 110;
+  // 일관성 점검 표와 같은 내용을 해당 장 카드에도 띄워 검색 중에도 놓치지 않게 한다.
+  const FLAGS = {
+    "4": "4.1절 ‘디지털혁신추진과’, 4.3절 종료일 ‘2026-12-30’이 다른 장과 다릅니다.",
+    "5": "사업 48건·예산 6,500억원·‘한지연’ 국장 표기가 다른 장(50건·6,700억원·한지원)과 다릅니다."
+  };
+
+  const $q = document.getElementById("q");
+  const $clear = document.getElementById("clear");
+  const $grid = document.getElementById("grid");
+  const $count = document.getElementById("count");
+  const $chips = [...document.querySelectorAll(".chip")];
+  let chapters = [];
+  let scope = "all";
+
+  const plain = (md) => md.replace(/^#{1,6}\s*/gm, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\s+/g, " ").trim();
+  const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const highlight = (text, q) => q ? esc(text).replace(new RegExp(reEsc(esc(q)), "gi"), (m) => `<mark>${m}</mark>`) : esc(text);
+
+  function summarize(body) {
+    return body.length > SUMMARY_LEN ? body.slice(0, SUMMARY_LEN).trimEnd() + "…" : body;
+  }
+  // 검색어가 요약 밖에 있으면 일치 위치 주변을 잘라 보여준다.
+  function snippet(body, q) {
+    const i = body.toLowerCase().indexOf(q.toLowerCase());
+    if (i < 0 || i + q.length <= SUMMARY_LEN) return summarize(body);
+    const start = Math.max(0, i - 40);
+    const end = Math.min(body.length, i + q.length + 60);
+    return (start > 0 ? "…" : "") + body.slice(start, end) + (end < body.length ? "…" : "");
+  }
+
+  function matches(ch, q) {
+    if (!q) return true;
+    const needle = q.toLowerCase();
+    const inTitle = ch.title.toLowerCase().includes(needle);
+    const inBody = ch.plain.toLowerCase().includes(needle);
+    return scope === "title" ? inTitle : scope === "body" ? inBody : inTitle || inBody;
+  }
+
+  function render() {
+    const q = $q.value.trim();
+    $clear.hidden = !$q.value;
+    const hits = chapters.filter((ch) => matches(ch, q));
+    $count.innerHTML = `결과 <strong>${hits.length}</strong>건` + (q ? ` · “${esc(q)}”` : ` · 전체 ${chapters.length}개 장`);
+
+    if (!hits.length) {
+      $grid.innerHTML = `<li class="state" style="grid-column:1/-1"><strong>“${esc(q)}”이(가) 들어간 장이 없습니다</strong>
+        다른 키워드를 입력하거나 검색 범위를 ‘제목+본문’으로 바꿔 보세요.<br>
+        <button class="chip" type="button" id="reset">검색 초기화</button></li>`;
+      document.getElementById("reset").onclick = () => { $q.value = ""; setScope("all"); $q.focus(); };
+      return;
+    }
+    $grid.innerHTML = hits.map((ch) => `
+      <li class="card">
+        <span class="no">${esc(ch.no)}장</span>
+        <h2>${highlight(ch.title, q)}</h2>
+        <p class="summary">${highlight(q ? snippet(ch.plain, q) : summarize(ch.plain), q)}</p>
+        ${FLAGS[ch.no] ? `<p class="flag">⚠ ${esc(FLAGS[ch.no])}</p>` : ""}
+        <details><summary>본문 전체 보기</summary>
+          <p class="full">${highlight(ch.body, q)}</p></details>
+      </li>`).join("");
+  }
+
+  function syncUrl() {
+    const url = new URL(location.href);
+    const q = $q.value.trim();
+    q ? url.searchParams.set("q", q) : url.searchParams.delete("q");
+    scope !== "all" ? url.searchParams.set("scope", scope) : url.searchParams.delete("scope");
+    history.replaceState(null, "", url);
+  }
+
+  function setScope(next) {
+    scope = next;
+    $chips.forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.scope === next)));
+    render(); syncUrl();
+  }
+
+  function showError(msg) {
+    $grid.setAttribute("aria-busy", "false");
+    $count.textContent = "데이터를 불러오지 못했습니다";
+    $grid.innerHTML = `<li class="state" style="grid-column:1/-1"><strong>장 데이터를 불러오지 못했습니다</strong>${esc(msg)}<br>
+      <button class="chip" type="button" onclick="location.reload()">다시 시도</button></li>`;
+  }
+
+  async function load() {
+    try {
+      const res = await fetch(DATA_URL, { cache: "no-cache" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+      if (!Array.isArray(raw)) throw new Error("데이터 형식이 배열이 아닙니다.");
+      chapters = raw.map((r) => {
+        const body = String(r["본문"] ?? "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/^#{1,6}\s*/gm, "");
+        return { no: String(r["장"] ?? ""), title: String(r["제목"] ?? ""), body, plain: plain(String(r["본문"] ?? "")) };
+      });
+      $grid.setAttribute("aria-busy", "false");
+      render();
+    } catch (e) {
+      showError(`(${e.message}) 잠시 후 다시 시도해 주세요.`);
+    }
+  }
+
+  const params = new URLSearchParams(location.search);
+  $q.value = params.get("q") || "";
+  if (["all", "title", "body"].includes(params.get("scope"))) {
+    scope = params.get("scope");
+    $chips.forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.scope === scope)));
+  }
+  $q.addEventListener("input", () => { if (chapters.length) { render(); syncUrl(); } });
+  $clear.addEventListener("click", () => { $q.value = ""; render(); syncUrl(); $q.focus(); });
+  $chips.forEach((c) => c.addEventListener("click", () => setScope(c.dataset.scope)));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement !== $q) { e.preventDefault(); $q.focus(); }
+    if (e.key === "Escape" && document.activeElement === $q) { $q.value = ""; render(); syncUrl(); }
+  });
+  load();
+})();
+</script>
+</body>
+</html>
